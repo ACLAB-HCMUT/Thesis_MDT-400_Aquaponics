@@ -1,88 +1,61 @@
 #include "modus485_Task.h"
-const char *portname = PORT_USB;
-int fd = -1;
-const unsigned char readValue[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b};
-int port_init()
+void cleanBuffer(size_t size)
 {
-    fd = open(portname, O_RDWR | O_NOCTTY | O_SYNC);
-    if (fd < 0)
-    {
-        Serial.println("Error opening: ");
-        Serial.println(portname);
-    }
-    return fd;
+    unsigned char buffer[size];
+    Serial1.readBytes(buffer, size);
 }
-void port_close()
+int modbus_rs485_read(size_t returnSize)
 {
-    close(fd);
-}
-void clearSerialBuffer()
-{
-    if (tcflush(fd, TCIFLUSH) != 0)
+    unsigned char buffer[9];
+    size_t bytesRead = Serial1.read(buffer, 9);
+    if (bytesRead > 0)
     {
-        Serial.println("Error clearing serial buffer");
-    }
-}
-bool port_config(speed_t speed)
-{
-    struct termios tty;
-    if (tcgetattr(fd, &tty) != 0)
-    {
-        Serial.println("Error tcggetattr");
-    }
-    cfsetospeed(&tty, speed);
-    cfsetispeed(&tty, speed);
-    tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8; // 8-bit characters
-    tty.c_iflag &= ~IGNBRK;                     // disable break processing
-    tty.c_lflag = 0;                            // no signaling chars, no echo, no canonical processing
-    tty.c_oflag = 0;                            // no remapping, no delays
-    tty.c_cc[VMIN] = 0;                         // read doesn't block
-    tty.c_cc[VTIME] = 5;                        // 0.5 seconds read timeout
-    tty.c_iflag &= ~(IXON | IXOFF | IXANY);     // shut off xon/xoff ctrl
-    tty.c_cflag |= (CLOCAL | CREAD);            // ignore modem controls, enable reading
-    tty.c_cflag &= ~(PARENB | PARODD);          // shut off parity
-
-    if (tcsetattr(fd, TCSANOW, &tty) != 0)
-    {
-        Serial.println("Error from tcsetattr");
-        return false;
-    }
-    return true;
-}
-int modbus_rs485_read(unsigned char *buffer, size_t size)
-{
-    size_t totalRead = 0;
-    while (totalRead < size)
-    {
-        int bytesRead = read(fd, buffer, size - totalRead);
-        if (bytesRead < 0)
+        Serial.println("====SENSOR DATA====");
+        for (int i = 0; i < bytesRead; ++i)
         {
-            Serial.println("FAILED READ");
-            return -1;
+            Serial.print(static_cast<int>(buffer[i]), HEX);
+            Serial.print(" ");
         }
-        totalRead += bytesRead;
+        Serial.println("============");
     }
-    int n = (int)totalRead;
-    Serial.print("Number of bytes have been read: ");
-    Serial.println(n);
-    Serial.println("Read from serial port: ");
-    for (int i = 0; i < n; ++i)
+    else
     {
-        Serial.print(static_cast<int>(buffer[i]));
+        Serial.println("Nothing to read");
     }
-    return (int)totalRead;
+    cleanBuffer(9 - bytesRead);
+    return (int)bytesRead;
 }
-int modbus_rs485_write(const unsigned char *buffer, size_t size)
+void modbus_rs485_write(sReadCommand *command)
 {
-    return write(fd, buffer, size);
-}
-void modbus_rs485_init()
-{
-    fd = port_init();
-    if (fd > 0)
+    // int n = Serial1.write(command->buffer, sizeof(command->buffer));
+    uint8_t readValue[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b};
+    int n = Serial1.write(readValue, sizeof(readValue));
+    if (n < 0)
     {
-        if (!port_config(B9600))
-            port_close();
+        Serial.print("Cannot write");
     }
-    clearSerialBuffer();
+    else
+    {
+        Serial.print("Write successfully: ");
+        // Serial.println(command->returnSize);
+        Serial.println(sizeof(readValue));
+    }
+}
+
+void modbus485_sensor_read(void *pvParameters)
+{
+    sReadCommand *command = reinterpret_cast<sReadCommand *>(pvParameters);
+
+    while (true)
+    {
+        modbus_rs485_write(command);
+        modbus_rs485_read(command->returnSize);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+void modbus485_sensor_read_init(uint8_t *buffer, size_t returnSize)
+{
+    Serial1.begin(B9600, SERIAL_8N1, 44, 43);
+    sReadCommand command = {buffer, returnSize};
+    xTaskCreate(modbus485_sensor_read, "MODBUS_485_READ", 4096, (void *)&command, 1, NULL);
 }

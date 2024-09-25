@@ -11,5 +11,6 @@
 // TASK CONFIG
 #include "../src/tasks/CreateTask.h"
 
-
+#define TXD_RELAY 6
+#define RXD_RELAY 7
 #endif

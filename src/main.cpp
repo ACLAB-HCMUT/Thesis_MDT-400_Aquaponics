@@ -1,6 +1,5 @@
 // Import required libraries
 #include "globals.h"
-
 void setup(){
   pinMode(10, OUTPUT);
   CreateTask();
