@@ -1,68 +1,97 @@
 #include "modus485_Task.h"
-// int modbus_rs485_read(size_t returnSize)
-// {
-//     byte buffer[9];
-//     size_t bytesRead = Serial1.readBytes(buffer, 9);
-//     Serial.println("====SENSOR DATA====");
-//     for (int i = 0; i < bytesRead; ++i)
-//     {
-//         Serial.print(static_cast<int>(buffer[i]), HEX);
-//         Serial.print(" ");
-//     }
-//     Serial.println("");
-//     Serial.println("============");
-//     memset(buffer, 0, sizeof(buffer));
-//     return (int)bytesRead;
-// }
-// void modbus_rs485_write(sReadCommand *command)
-// {
-//     int n = Serial1.write(command->buffer, sizeof(command->buffer));
-//     // uint8_t readValue[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b};
-//     // int n = Serial1.write(readValue, sizeof(readValue));
-//     // if (n < 0)
-//     // {
-//     //     Serial.print("Cannot write");
-//     // }
-//     // else
-//     // {
-//     //     Serial.print("Write successfully: ");
-//     // }
-//     Serial1.flush();
-// }
+HardwareSerial RS485Serial(1);
+uint8_t sensorRead[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b};
+std::string floatToString(float value) {
+    // Extract integer part
+    int intPart = static_cast<int>(value);
+    // Extract fractional part
+    float fracPart = value - intPart;
 
-void modbus485_sensor_read(void *pvParameters)
+    // Convert integer part to string
+    std::string result = "";
+    if (intPart == 0) {
+        result = "0";
+    } else {
+        while (intPart > 0) {
+            result = static_cast<char>('0' + intPart % 10) + result;
+            intPart /= 10;
+        }
+    }
+
+    // Add decimal point
+    result += ".";
+
+    // Convert fractional part to string
+    for (int i = 0; i < 6; ++i) { // Limiting to 6 decimal places
+        fracPart *= 10;
+        int digit = static_cast<int>(fracPart);
+        result += static_cast<char>('0' + digit);
+        fracPart -= digit;
+    }
+
+    return result;
+}
+void cleanBuffer()
 {
-    // sReadCommand *command = reinterpret_cast<sReadCommand *>(pvParameters);
-    uint8_t readValue[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b};
-    uint8_t buffer[7];
-    while (true)
+    size_t bytesToRead = RS485Serial.available();
+    if (bytesToRead > 0)
     {
-        // modbus_rs485_write(command);
-        // modbus_rs485_read(command->returnSize);
-        int n = Serial1.write(readValue, sizeof(readValue));
-        if (n > 0)
-        {
-            Serial.print("Sent: ");
-            Serial.println(n);
-        }
-        Serial1.flush();
-
-        size_t bytesRead = Serial1.readBytes(buffer, sizeof(buffer));
-        // Serial.println("==== SENSOR DATA ====");
-        Serial.print(bytesRead);
-
-        for (int i = 0; i < bytesRead; ++i)
-        {
-            Serial.print(static_cast<int>(buffer[i]), HEX);
-            Serial.print(" ");
-        }
-        Serial.println("");
-        memset(buffer, 0, sizeof(buffer));
-        vTaskDelay(3000 / portTICK_PERIOD_MS);
+        byte out[bytesToRead];
+        RS485Serial.readBytes(out, bytesToRead);
     }
 }
-void modbus485_sensor_read_init(uint8_t *buffer, size_t returnSize)
+void read_from_sensor(int bufferSize)
 {
-    sReadCommand command = {buffer, returnSize};
-    xTaskCreate(modbus485_sensor_read, "MODBUS_485_READ", 4096, (void *)&command, 1, NULL);
+    byte buffer[bufferSize];
+
+    int avail = RS485Serial.available();
+    if (avail > 0)
+    {
+        size_t bytesRead = RS485Serial.readBytes(buffer, sizeof(buffer));
+        // for (int i = 0; i < bytesRead; i++)
+        // {
+        //     Serial.print(buffer[i], HEX);
+        //     Serial.print(" ");
+        // }
+        Serial.println("");
+        if (buffer[1] == 0x03)
+        {
+            float temperature = (buffer[3] << 8) | buffer[4]; // shift left 8 bits -> 2 bytes : 0xbuffer[3]00 ->  0xbuffer[3]buffer[4]
+            temperature = temperature / 10;
+            // Serial.print("Temperature: ");
+            // Serial.println(temperature);
+            float humidity = (buffer[5] << 8) | buffer[6]; // shift left 8 bits -> 2 bytes : 0xbuffer[3]00 ->  0xbuffer[3]buffer[4]
+            humidity = humidity / 10;
+            // Serial.print("Humidity: ");
+            // Serial.println(humidity);
+            publishData("TEMP", String(temperature));
+            publishData("HUMI", String(humidity));
+        }
+        // Serial.println(bytesRead);
+    }
+    else
+    {
+        Serial.println("Lỗi đọc cảm biến");
+    }
+    memset(buffer, 0, sizeof(buffer));
+}
+void write_to_sensor()
+{
+    cleanBuffer();
+    int n = RS485Serial.write(sensorRead, sizeof(sensorRead));
+}
+void modbus485_sensor_read(void *pvParameters)
+{
+    while (true)
+    {
+        write_to_sensor();
+        vTaskDelay(100/portTICK_PERIOD_MS);
+        read_from_sensor(BUFFER_SIZE);
+        vTaskDelay(7000/portTICK_PERIOD_MS);
+    }
+}
+void modbus485_sensor_read_init()
+{
+    RS485Serial.begin(9600, SERIAL_8N1, RXD_RELAY, TXD_RELAY);
+    xTaskCreate(modbus485_sensor_read, "MODBUS_485_READ", 4096, NULL, 1, NULL);
 }

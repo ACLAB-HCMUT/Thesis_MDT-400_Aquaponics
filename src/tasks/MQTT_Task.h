@@ -7,4 +7,5 @@
 extern PubSubClient client;
 extern WiFiClient espClient;
 void mqtt_init();
+void publishData(String feed, String data);
 #endif

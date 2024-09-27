@@ -1,5 +1,6 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
+#include <HardwareSerial.h>
 #include "defines.h"
 #include "WiFi.h"
 #include "ESPAsyncWebServer.h"
