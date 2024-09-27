@@ -5,7 +5,7 @@
 #include <termios.h>
 #include <unistd.h>
 typedef struct READ_COMMAND_struct{
-    uint8_t * b;
+    uint8_t * buffer;
     size_t returnSize;
 } sReadCommand;
 void modbus485_sensor_read_init(uint8_t *buffer, size_t returnSize);

@@ -1,61 +1,68 @@
 #include "modus485_Task.h"
-void cleanBuffer(size_t size)
+// int modbus_rs485_read(size_t returnSize)
+// {
+//     byte buffer[9];
+//     size_t bytesRead = Serial1.readBytes(buffer, 9);
+//     Serial.println("====SENSOR DATA====");
+//     for (int i = 0; i < bytesRead; ++i)
+//     {
+//         Serial.print(static_cast<int>(buffer[i]), HEX);
+//         Serial.print(" ");
+//     }
+//     Serial.println("");
+//     Serial.println("============");
+//     memset(buffer, 0, sizeof(buffer));
+//     return (int)bytesRead;
+// }
+// void modbus_rs485_write(sReadCommand *command)
+// {
+//     int n = Serial1.write(command->buffer, sizeof(command->buffer));
+//     // uint8_t readValue[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b};
+//     // int n = Serial1.write(readValue, sizeof(readValue));
+//     // if (n < 0)
+//     // {
+//     //     Serial.print("Cannot write");
+//     // }
+//     // else
+//     // {
+//     //     Serial.print("Write successfully: ");
+//     // }
+//     Serial1.flush();
+// }
+
+void modbus485_sensor_read(void *pvParameters)
 {
-    unsigned char buffer[size];
-    Serial1.readBytes(buffer, size);
-}
-int modbus_rs485_read(size_t returnSize)
-{
-    unsigned char buffer[9];
-    size_t bytesRead = Serial1.read(buffer, 9);
-    if (bytesRead > 0)
+    // sReadCommand *command = reinterpret_cast<sReadCommand *>(pvParameters);
+    uint8_t readValue[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b};
+    uint8_t buffer[7];
+    while (true)
     {
-        Serial.println("====SENSOR DATA====");
+        // modbus_rs485_write(command);
+        // modbus_rs485_read(command->returnSize);
+        int n = Serial1.write(readValue, sizeof(readValue));
+        if (n > 0)
+        {
+            Serial.print("Sent: ");
+            Serial.println(n);
+        }
+        Serial1.flush();
+
+        size_t bytesRead = Serial1.readBytes(buffer, sizeof(buffer));
+        // Serial.println("==== SENSOR DATA ====");
+        Serial.print(bytesRead);
+
         for (int i = 0; i < bytesRead; ++i)
         {
             Serial.print(static_cast<int>(buffer[i]), HEX);
             Serial.print(" ");
         }
-        Serial.println("============");
-    }
-    else
-    {
-        Serial.println("Nothing to read");
-    }
-    cleanBuffer(9 - bytesRead);
-    return (int)bytesRead;
-}
-void modbus_rs485_write(sReadCommand *command)
-{
-    // int n = Serial1.write(command->buffer, sizeof(command->buffer));
-    uint8_t readValue[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b};
-    int n = Serial1.write(readValue, sizeof(readValue));
-    if (n < 0)
-    {
-        Serial.print("Cannot write");
-    }
-    else
-    {
-        Serial.print("Write successfully: ");
-        // Serial.println(command->returnSize);
-        Serial.println(sizeof(readValue));
-    }
-}
-
-void modbus485_sensor_read(void *pvParameters)
-{
-    sReadCommand *command = reinterpret_cast<sReadCommand *>(pvParameters);
-
-    while (true)
-    {
-        modbus_rs485_write(command);
-        modbus_rs485_read(command->returnSize);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        Serial.println("");
+        memset(buffer, 0, sizeof(buffer));
+        vTaskDelay(3000 / portTICK_PERIOD_MS);
     }
 }
 void modbus485_sensor_read_init(uint8_t *buffer, size_t returnSize)
 {
-    Serial1.begin(B9600, SERIAL_8N1, 44, 43);
     sReadCommand command = {buffer, returnSize};
     xTaskCreate(modbus485_sensor_read, "MODBUS_485_READ", 4096, (void *)&command, 1, NULL);
 }
