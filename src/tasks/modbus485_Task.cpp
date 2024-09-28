@@ -57,7 +57,7 @@ void modbus485_sensor_read(void *pvParameters)
         write_to_sensor();
         vTaskDelay(100/portTICK_PERIOD_MS);
         read_from_sensor(BUFFER_SIZE);
-        vTaskDelay(7000/portTICK_PERIOD_MS);
+        vTaskDelay(5000/portTICK_PERIOD_MS);
     }
 }
 void modbus485_sensor_read_init()

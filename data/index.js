@@ -28,4 +28,4 @@ const getSensorValue = async (feedKey, container) => {
 setInterval(() => {
   getSensorValue("temp", tempContainer);
   getSensorValue("humi", humiContainer);
-}, 3000);
+}, 5000);

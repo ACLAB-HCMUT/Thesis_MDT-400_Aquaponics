@@ -40,7 +40,8 @@ void serverTask(void *pvParameters)
   // Route to load style.css file
   server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest *request)
             { request->send(SPIFFS, "/style.css", "text/css"); });
-
+  server.on("/index.js", HTTP_GET, [](AsyncWebServerRequest *request)
+            { request->send(SPIFFS, "/index.js", "text/javascript"); });
   // Route to set GPIO to HIGH
   server.on("/on", HTTP_GET, [](AsyncWebServerRequest *request)
             {
