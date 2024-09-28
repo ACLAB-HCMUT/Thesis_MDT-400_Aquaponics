@@ -12,6 +12,5 @@
 // } sReadCommand;
 
 extern uint8_t sensorRead[];
-
 void modbus485_sensor_read_init();
 #endif

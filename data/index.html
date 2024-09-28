@@ -1,15 +1,26 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>ESP32 Web Server</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="data:,">
-  <link rel="stylesheet" type="text/css" href="style.css">
-</head>
-<body>
-  <h1>ESP32 Web Server</h1>
-  <p>GPIO state: <strong> %STATE%</strong></p>
-  <p><a href="/on"><button class="button">ON</button></a></p>
-  <p><a href="/off"><button class="button button2">OFF</button></a></p>
-</body>
+  <head>
+    <title>Aquaponics Mini Web</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
+  <body id="container">
+    <h1>Aquaponics Web Server</h1>
+    <div id="inner-container">
+      <div id="content-container">
+        <span class="label">Temperature: </span>
+        <div>
+          <span id="temperatue-value" class="context">0</span>
+          <span>°C</span>
+        </div>
+      </div>
+      <div id="content-container">
+        <span class="label">Humidity: </span>
+        <span id="humidity-value" class="context">0</span>
+      </div>
+    </div>
+  </body>
 </html>
+<script src="index.js"></script>

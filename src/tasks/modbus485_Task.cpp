@@ -1,36 +1,6 @@
 #include "modus485_Task.h"
 HardwareSerial RS485Serial(1);
 uint8_t sensorRead[] = {0x01, 0x03, 0x00, 0x00, 0x00, 0x02, 0xc4, 0x0b};
-std::string floatToString(float value) {
-    // Extract integer part
-    int intPart = static_cast<int>(value);
-    // Extract fractional part
-    float fracPart = value - intPart;
-
-    // Convert integer part to string
-    std::string result = "";
-    if (intPart == 0) {
-        result = "0";
-    } else {
-        while (intPart > 0) {
-            result = static_cast<char>('0' + intPart % 10) + result;
-            intPart /= 10;
-        }
-    }
-
-    // Add decimal point
-    result += ".";
-
-    // Convert fractional part to string
-    for (int i = 0; i < 6; ++i) { // Limiting to 6 decimal places
-        fracPart *= 10;
-        int digit = static_cast<int>(fracPart);
-        result += static_cast<char>('0' + digit);
-        fracPart -= digit;
-    }
-
-    return result;
-}
 void cleanBuffer()
 {
     size_t bytesToRead = RS485Serial.available();
