@@ -14,4 +14,13 @@
 
 #define TXD_RELAY 6
 #define RXD_RELAY 7
+
+// MODBUS RS485 SENSORS
+// #define ISHC_205
+// #define ISDC_205
+#define ISEC_205
+
+// Pump
+#define PUMP
+
 #endif

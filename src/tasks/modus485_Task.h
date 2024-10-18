@@ -5,12 +5,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include "MQTT_Task.h"
-
-// typedef struct READ_COMMAND_struct{
-//     uint8_t * buffer;
-//     size_t returnSize;
-// } sReadCommand;
-
-extern uint8_t sensorRead[];
-void modbus485_sensor_read_init();
+#include "../configs/sensors/sensor_config.h"
+#include "../hardwares/Sensor.h"
+void modbus485_communicate_init();
 #endif

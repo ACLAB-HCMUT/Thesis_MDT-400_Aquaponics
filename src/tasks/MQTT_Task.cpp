@@ -1,11 +1,12 @@
-#include "MQTT_Task.h"
+#include "mqtt_Task.h"
 WiFiClient wifiClient;
 // DOCUMENT: https://pubsubclient.knolleary.net/api
 PubSubClient client(wifiClient);
 
-/*
-    Setting call back when the client have subscribed to the topic 
-    process the new message when it arrives.
+/**
+ * @brief Setting call back when the client have subscribed to the topic
+ * process the new message when it arrives.
+ *
  */
 void callback(char *topic, byte *payload, unsigned int length)
 {
@@ -17,9 +18,10 @@ void callback(char *topic, byte *payload, unsigned int length)
     Serial.println(message);
 }
 
-/*
-Publish data to a specific feed
-*/
+/**
+ * @brief Publish data to a specific feed
+ *
+ */
 void publishData(String feed, String data)
 {
     // feed MQTT link
@@ -30,7 +32,10 @@ void publishData(String feed, String data)
         client.publish(topic.c_str(), data.c_str());
     }
 }
-
+/**
+ * @brief Main task of MQTT
+ *
+ */
 void MQTTTask(void *pvParameters)
 {
     // Check wifi connection
@@ -41,7 +46,7 @@ void MQTTTask(void *pvParameters)
 
     client.setServer(MQTT_SERVER, MQTT_PORT);
     client.setCallback(callback);
-    
+
     while (!client.connected())
     {
         Serial.println("Connecting to MQTT...");
@@ -71,6 +76,10 @@ void MQTTTask(void *pvParameters)
         }
     }
 }
+/**
+ * @brief Reconnect to MQTT sever when disconnected
+ *
+ */
 void reconnect()
 {
     xTaskCreate(MQTTTask, "MQTTTasks", 4096, NULL, 1, NULL);
