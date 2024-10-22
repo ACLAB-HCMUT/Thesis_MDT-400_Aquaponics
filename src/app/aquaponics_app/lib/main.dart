@@ -1,7 +1,8 @@
-import 'package:aquaponics_app/homePage.dart';
-import 'package:aquaponics_app/loginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// PAGES
+import 'package:aquaponics_app/homePage.dart';
+import 'package:aquaponics_app/loginPage.dart';
 
 void main() async {
   final isLoggedIn = await getLoginStatus();

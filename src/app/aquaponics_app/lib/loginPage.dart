@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart'; 
 import 'package:shared_preferences/shared_preferences.dart';
+// PAGES
+import 'package:aquaponics_app/homePage.dart';
 
 class LoginScreen extends StatefulWidget { 
   const LoginScreen({super.key}); 
@@ -16,15 +18,28 @@ class LoginScreenState extends State<LoginScreen> {
     // Handle login logic here
     String username = usernameController.text;
     String password = passwordController.text;
-    if (username == 'username@example.com' && password == 'password123') {
-      SharedPreferences preferences = await SharedPreferences.getInstance();
-      preferences.setBool('isLoggedIn', true)
 
-      Navigator.pushReplacementNamed(context, '/home');
+    final navigator = Navigator.of(context);
+    if (username == "") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please type your username')),
+      );
+    }
+    else if (password == '') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please type your password')),
+        );
+    }
+    else if (username == 'admin' && password == '1') {
+      SharedPreferences preferences = await SharedPreferences.getInstance();
+      preferences.setBool('isLoggedIn', true);
+      navigator.pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomeScreen()) 
+      );
     } else {
       // Display an error message
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid email or password')),
+        const SnackBar(content: Text('Invalid username or password')),
       );
     }
   }
@@ -60,6 +75,7 @@ class LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
+                login();
               },
               child: const Text('Login'),
             ),
