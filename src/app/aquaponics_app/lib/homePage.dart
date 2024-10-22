@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // PAGES
-import 'package:aquaponics_app/loginPage.dart';
-import 'package:aquaponics_app/sensorData.dart';
+import 'loginPage.dart';
+import 'sensorInfo.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,7 +15,6 @@ class HomeScreenState extends State<HomeScreen> {
   double temperature = 0.0;
   double humidity = 0.0;
   double ph = 0.0;
-  double dO = 0.0;
 
   @override
   void initState() {
