@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData.dark(),
       themeMode: ThemeMode.system,
       initialRoute: '/login',
-      home : isLoggedIn ? const HomeScreen() : const LoginScreen(),
+      home : isLoggedIn ? const HomeScreen() : const HomeScreen(),
     );
   }
 }

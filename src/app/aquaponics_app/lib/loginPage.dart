@@ -34,7 +34,7 @@ class LoginScreenState extends State<LoginScreen> {
       SharedPreferences preferences = await SharedPreferences.getInstance();
       preferences.setBool('isLoggedIn', true);
       navigator.pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomeScreen()) 
+        MaterialPageRoute(builder: (context) => const HomeScreen())
       );
     } else {
       // Display an error message
