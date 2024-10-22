@@ -14,7 +14,7 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   double temperature = 0.0;
   double humidity = 0.0;
-  double ph = 0.0;
+  double pH = 0.0;
 
   @override
   void initState() {
@@ -45,40 +45,97 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        leading: Row(
+          children: [
+            SizedBox(width: 16), // Adjust spacing if necessary
+            Icon(Icons.menu),
+            SizedBox(width: 16), // Adjust spacing if necessary
+          ],
+        ),
+        title: Container(
+          width: 200,
+          height: 50,
+          child: ElevatedButton(
+            onPressed: () {
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.energy_savings_leaf),
+                SizedBox(width: 16), // Adjust spacing if necessary
+                Text('Aquaponics', style: TextStyle(fontSize: 20),),
+              ],
+            ),
+          ),
+        ),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: logout,
+            onPressed: () {
+              // Handle search action
+              logout();
+            },
           ),
         ],
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Welcome to the Home Page',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            SensorInfo(
-              name: 'Temperature',
-              value: '$temperature °C',
-              icon: Icons.thermostat,
-              color: Colors.blue,
-              isConnected: true,
-            ),
-            SensorInfo(
-              name: 'Humidity',
-              value: '$humidity %',
-              icon: Icons.water_drop,
-              color: Colors.green,
-              isConnected: true
-            )
-          ],
+        child: Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: const Placeholder(),
+              ),
+              Expanded(
+                child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          child: const Placeholder(),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          color: Colors.grey[25],
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SensorInfo(
+                                name: 'Temperature',
+                                value: '$temperature °C',
+                                icon: Icons.thermostat,
+                                color: Colors.blue,
+                                isConnected: true,
+                              ),
+                              SensorInfo(
+                                  name: 'Humidity',
+                                  value: '$humidity %',
+                                  icon: Icons.water_drop,
+                                  color: Colors.green,
+                                  isConnected: true
+                              ),
+                              SensorInfo(
+                                  name: 'pH',
+                                  value: '$pH pH',
+                                  icon: Icons.pie_chart,
+                                  color: Colors.red,
+                                  isConnected: true
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ]
+                ),
+              ),
+              Expanded(
+                child: const Placeholder(),
+              ),
+            ],
+          )
         ),
       ),
     );
