@@ -1,3 +1,4 @@
+import 'package:aquaponics_app/sensorData.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // PAGES
@@ -12,9 +13,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
-  double temperature = 0.0;
-  double humidity = 0.0;
-  double pH = 0.0;
+  final SensorData sensorData = SensorData("phongcute", "");
+
 
   @override
   void initState() {
@@ -24,12 +24,11 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void fetchSensorData() async {
-    await Future.delayed(const Duration(seconds: 2));
-    // Replace this with actual sensor data fetching logic
-    setState(() {
-      temperature = 25.5; // Example temperature value
-      humidity = 60.0;    // Example humidity value
-    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Fetching sensor data')),
+    );
+    await sensorData.fetchData();
+    setState(() {});
   }
 
   Future<void> logout() async {
@@ -45,25 +44,32 @@ class HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: Row(
-          children: [
-            SizedBox(width: 16), // Adjust spacing if necessary
-            Icon(Icons.menu),
-            SizedBox(width: 16), // Adjust spacing if necessary
-          ],
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+            );
+          },
         ),
         title: Container(
           width: 200,
           height: 50,
           child: ElevatedButton(
             onPressed: () {
+              // Button action
             },
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.energy_savings_leaf),
                 SizedBox(width: 16), // Adjust spacing if necessary
-                Text('Aquaponics', style: TextStyle(fontSize: 20),),
+                Text(
+                  'Aquaponics',
+                  style: TextStyle(fontSize: 20),
+                ),
               ],
             ),
           ),
@@ -73,11 +79,52 @@ class HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              // Handle search action
+              // Handle logout action
               logout();
             },
           ),
         ],
+      ),
+
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                // Handle the Home action
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text('Settings'),
+              onTap: () {
+                // Handle the Settings action
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Logout'),
+              onTap: () {
+                // Handle the Logout action
+              },
+            ),
+          ],
+        ),
       ),
 
       body: Padding(
@@ -105,21 +152,21 @@ class HomeScreenState extends State<HomeScreen> {
                             children: [
                               SensorInfo(
                                 name: 'Temperature',
-                                value: '$temperature °C',
+                                value: '$sensorData.temperature °C',
                                 icon: Icons.thermostat,
                                 color: Colors.blue,
                                 isConnected: true,
                               ),
                               SensorInfo(
                                   name: 'Humidity',
-                                  value: '$humidity %',
+                                  value: '$sensorData.humidity %',
                                   icon: Icons.water_drop,
                                   color: Colors.green,
                                   isConnected: true
                               ),
                               SensorInfo(
                                   name: 'pH',
-                                  value: '$pH pH',
+                                  value: '$sensorData.pH pH',
                                   icon: Icons.pie_chart,
                                   color: Colors.red,
                                   isConnected: true
