@@ -6,6 +6,7 @@ class SensorData {
   double temperature = 0.0;
   double humidity = 0.0;
   double pH = 7.0;
+  double dO = 0.0;
 
   final String username;
   final String apiKey;
@@ -13,17 +14,19 @@ class SensorData {
   SensorData(this.username, this.apiKey);
 
   Future<void> fetchData() async {
-    try {
-      final tempData = await _fetchFeed('temperature');
-      final humidityData = await _fetchFeed('humidity');
-      final pHData = await _fetchFeed('pH');
+    // try {
+    //   final tempData = await _fetchFeed('temperature');
+    //   final humidityData = await _fetchFeed('humidity');
+    //   final pHData = await _fetchFeed('pH');
+    //   final dOData = await _fetchFeed('DO');
 
-      temperature = double.parse(tempData);
-      humidity = double.parse(humidityData);
-      pH = double.parse(pHData);
-    } catch (e) {
-      print('Error fetching data: $e');
-    }
+    //   temperature = double.parse(tempData);
+    //   humidity = double.parse(humidityData);
+    //   pH = double.parse(pHData);
+    //   dO = double.parse(dOData);
+    // } catch (e) {
+    //   print('Error fetching data: $e');
+    // }
   }
 
   Future<String> _fetchFeed(String feedName) async {

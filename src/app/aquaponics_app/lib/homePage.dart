@@ -15,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 class HomeScreenState extends State<HomeScreen> {
   final SensorData sensorData = SensorData("phongcute", "");
 
-
   @override
   void initState() {
     super.initState();
@@ -24,9 +23,6 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   void fetchSensorData() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Fetching sensor data')),
-    );
     await sensorData.fetchData();
     setState(() {});
   }
@@ -56,7 +52,7 @@ class HomeScreenState extends State<HomeScreen> {
         ),
         title: Container(
           width: 200,
-          height: 50,
+          height: 48,
           child: ElevatedButton(
             onPressed: () {
               // Button action
@@ -68,22 +64,13 @@ class HomeScreenState extends State<HomeScreen> {
                 SizedBox(width: 16), // Adjust spacing if necessary
                 Text(
                   'Aquaponics',
-                  style: TextStyle(fontSize: 20),
+                  style: TextStyle(fontSize: 18),
                 ),
               ],
             ),
           ),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              // Handle logout action
-              logout();
-            },
-          ),
-        ],
       ),
 
       drawer: Drawer(
@@ -103,23 +90,31 @@ class HomeScreenState extends State<HomeScreen> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
+              leading: Icon(Icons.house),
+              title: Text('House'),
               onTap: () {
                 // Handle the Home action
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings),
-              title: Text('Settings'),
+              leading: const Icon(Icons.water),
+              title: const Text('Pumps'),
+              onTap: () {
+                // Handle the Home action
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.thermostat),
+              title: const Text('Sensors'),
               onTap: () {
                 // Handle the Settings action
               },
             ),
             ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Logout'),
               onTap: () {
+                logout();
                 // Handle the Logout action
               },
             ),
@@ -150,26 +145,41 @@ class HomeScreenState extends State<HomeScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SensorInfo(
-                                name: 'Temperature',
-                                value: '$sensorData.temperature °C',
-                                icon: Icons.thermostat,
-                                color: Colors.blue,
-                                isConnected: true,
+                              Expanded(
+                                child:  SensorInfo(
+                                  name: 'Temperature',
+                                  value: '${sensorData.temperature} °C',
+                                  icon: Icons.thermostat,
+                                  color: Colors.yellow,
+                                  isConnected: true,
+                                ),
                               ),
-                              SensorInfo(
+                              Expanded(
+                                child:  SensorInfo(
                                   name: 'Humidity',
-                                  value: '$sensorData.humidity %',
+                                  value: '${sensorData.humidity} %',
                                   icon: Icons.water_drop,
                                   color: Colors.green,
                                   isConnected: true
+                                ),
                               ),
-                              SensorInfo(
+                              Expanded(
+                                child: SensorInfo(
                                   name: 'pH',
-                                  value: '$sensorData.pH pH',
+                                  value: '${sensorData.pH} pH',
                                   icon: Icons.pie_chart,
                                   color: Colors.red,
                                   isConnected: true
+                                ),
+                              ),
+                              Expanded(
+                                child: SensorInfo(
+                                  name: 'DO',
+                                  value: '${sensorData.dO} DO',
+                                  icon: Icons.air,
+                                  color: Colors.lightBlue,
+                                  isConnected: true
+                                )
                               )
                             ],
                           ),
